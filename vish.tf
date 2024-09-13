@@ -18,21 +18,25 @@ resource "aws_instance" "vish" {
   instance_type = "t2.micro"
 
   tags = {
-    Name = "HelloWorld"
+    Name        = "HelloWorld"
+    Project     = "MyProject"
+    Environment = "Development"
   }
 }
 
 resource "aws_security_group" "vish" {
-  name = "mysecurity"
+  name_prefix = "mysecurity-"
   tags = {
-    Name = "example"
+    Name        = "example"
+    Project     = "MyProject"
+    Environment = "Development"
   }
 }
 
 resource "aws_security_group_rule" "allow_ssh" {
   type              = "ingress"
   security_group_id = aws_security_group.vish.id
-  cidr_blocks       = ["10.0.0.0/8"]  # Limit SSH access to specific IP range
+  cidr_blocks       = ["203.0.113.0/24"]  # Replace with your IP or range for SSH access
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
@@ -47,12 +51,13 @@ resource "aws_security_group_rule" "allow_all_egress" {
   protocol          = "-1" # Allow all outbound traffic
 }
 
-resource "aws_security_group_rule" "allow_all_tcp" {
+# Removed overly broad TCP rule. Add specific rules if needed.
+# Example to allow HTTP and HTTPS traffic:
+resource "aws_security_group_rule" "allow_http_https" {
   type              = "ingress"
   security_group_id = aws_security_group.vish.id
-  cidr_blocks       = ["0.0.0.0/0"] # This exposes all TCP ports to the internet
-  from_port         = 1
-  to_port           = 65535
+  cidr_blocks       = ["0.0.0.0/0"]
+  from_port         = 80
+  to_port           = 443
   protocol          = "tcp"
-  # It might be better to limit this rule to specific ports or remove it if not needed
 }
